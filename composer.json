@@ -1,0 +1,22 @@
+{
+    "name": "kilahm/attribute-router",
+    "description": "A router for Hacklang that uses user defined attributes to define routing for single page applications.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Isaac Leinweber",
+            "email": "brotchen@gmail.com"
+        }
+    ],
+    "repositories": [
+        {
+            "type" : "vcs",
+            "url": "https://github.com/kilahm/HackUnit.git",
+            "no-api": true
+        }
+    ],
+    "require-dev": {
+        "hackpack/hackunit": "dev-patch"
+    },
+    "require": {}
+}
