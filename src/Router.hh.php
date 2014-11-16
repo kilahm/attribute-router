@@ -1,28 +1,21 @@
-<?hh //strict
+<?hh // strict
 
 namespace kilahm\AttributeRouter;
 
-use kilahm\Routes;
-use kilahm\HttpVerb;
+use Routes;
 
-
-type Route = shape(
+type Route<Tcontainer> = shape(
     'pattern' => string,
-    'factory' => HandlerFactory,
-    'method' => HandlerMethod,
+    'factory' => (function(Tcontainer) : Handler),
+    'method' => (function(Handler) : void),
 );
 
-type HandlerFactory = (function (...) : Handler);
-type HandlerMethod = (function(Handler) : void);
+type HandlerFactory = ;
+type HandlerMethod = ;
 
-final class Router implements Containable
+final class Router<Tcontainer>
 {
-    public static function factory(IOCContainer $c) : this
-    {
-        return new static($c);
-    }
-
-    public function __construct(private IOCContainer $container)
+    public function __construct(private Tcontainer $container)
     {
     }
 
@@ -47,12 +40,12 @@ final class Router implements Containable
         return $success ? true : $this->attempt($path, Routes::any());
     }
 
-    private function attempt(string $path, Vector<Route> $routes) : bool
+    private function attempt(string $path, Vector<Route<Tcontainer>>> $routes) : bool
     {
         $matches = [];
         foreach($routes as $route) {
             if(preg_match($route['pattern'], $path, $matches)) {
-                $route['method']($route['factory']($this->container)->setMatches($matches));
+                $route['method']($route['factory']($this->arg)->setMatches(Vector::fromItems($matches)));
                 return true;
             }
         }
