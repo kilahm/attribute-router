@@ -10,37 +10,37 @@ use kilahm\AttributeRouter\Route;
  * Routes.hh.php
  */
 
-class AutoRoutes
+class AutoRoutes<Tcontainer>
 {
-    public static function get() : Vector<Route>
+    public static function get() : Vector<Route<Tcontainer>>
     {
         return Vector
         {
         };
     }
 
-    public static function put() : Vector<Route>
+    public static function put() : Vector<Route<Tcontainer>>
     {
         return Vector
         {
         };
     }
 
-    public static function delete() : Vector<Route>
+    public static function delete() : Vector<Route<Tcontainer>>
     {
         return Vector
         {
         };
     }
 
-    public static function post() : Vector<Route>
+    public static function post() : Vector<Route<Tcontainer>>
     {
         return Vector
         {
         };
     }
 
-    public static function any() : Vector<Route>
+    public static function any() : Vector<Route<Tcontainer>>
     {
         return Vector
         {

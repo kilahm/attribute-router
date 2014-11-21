@@ -6,12 +6,9 @@ use Routes;
 
 type Route<Tcontainer> = shape(
     'pattern' => string,
-    'factory' => (function(Tcontainer) : Handler),
-    'method' => (function(Handler) : void),
+    'factory' => (function(Tcontainer) : Handler<Tcontainer>),
+    'method' => (function(Handler<Tcontainer>) : void),
 );
-
-type HandlerFactory = ;
-type HandlerMethod = ;
 
 final class Router<Tcontainer>
 {
@@ -40,12 +37,12 @@ final class Router<Tcontainer>
         return $success ? true : $this->attempt($path, Routes::any());
     }
 
-    private function attempt(string $path, Vector<Route<Tcontainer>>> $routes) : bool
+    private function attempt(string $path, Vector<Route<Tcontainer>> $routes) : bool
     {
         $matches = [];
         foreach($routes as $route) {
             if(preg_match($route['pattern'], $path, $matches)) {
-                $route['method']($route['factory']($this->arg)->setMatches(Vector::fromItems($matches)));
+                $route['method']($route['factory']($this->container)->setMatches(Vector::fromItems($matches)));
                 return true;
             }
         }

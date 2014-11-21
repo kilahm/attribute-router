@@ -8,15 +8,11 @@
             "email": "brotchen@gmail.com"
         }
     ],
-    "repositories": [
-        {
-            "type" : "vcs",
-            "url": "https://github.com/kilahm/HackUnit.git",
-            "no-api": true
-        }
-    ],
     "require-dev": {
-        "hackpack/hackunit": "dev-patch"
+        "hackpack/hackunit": "dev-master"
     },
-    "require": {}
+    "require": {
+        "kilahm\hack-class-scanner": "dev-master",
+        "kilahm\ioc-factory-container": "dev-master"
+    }
 }

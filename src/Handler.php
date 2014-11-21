@@ -2,11 +2,11 @@
 
 namespace kilahm\AttributeRouter;
 
-abstract class Handler
+abstract class Handler<Tcontainer>
 {
     private Vector<string> $matches;
 
-    abstract public static function factory(mixed $arg) : this;
+    abstract public static function factory(Tcontainer $arg) : this;
 
     public function setMatches(Vector<string> $matches) : this
     {
