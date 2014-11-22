@@ -1,5 +1,6 @@
 {
     "name": "kilahm/attribute-router",
+    "type": "library",
     "keywords": ["hhvm", "hack", "hacklang", "route", "routing"],
     "description": "A router for Hacklang that uses user defined attributes to define routing for single page applications.",
     "license": "MIT",
