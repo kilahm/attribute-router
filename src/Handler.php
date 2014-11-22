@@ -4,7 +4,7 @@ namespace kilahm\AttributeRouter;
 
 abstract class Handler<Tcontainer>
 {
-    private Vector<string> $matches;
+    protected Vector<string> $matches = Vector{};
 
     abstract public static function factory(Tcontainer $arg) : this;
 

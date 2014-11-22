@@ -12,6 +12,17 @@ class Routes<Tcontainer>
     {
         return AutoRoutes::get()->addAll(Vector
         {
+        /*
+        shape(
+            'pattern' => '/some regex here/',
+            'factory' => class_meth('\full\path\to\class', 'factoryMethod'),
+            'method' => meth_caller('\full\path\to\class', 'someInstanceMethod'),
+        ),
+        shape(
+            ...
+        ),
+        ...
+        */
         });
     }
 

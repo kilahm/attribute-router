@@ -1,0 +1,58 @@
+#! /usr/bin/env hhvm
+<?hh
+
+if(substr(php_sapi_name(), 0, 3) !== 'cli'){
+    http_response_code(404);
+    die();
+}
+
+// Find the composer autoloader
+$basedir = __DIR__;
+
+do {
+    if(file_exists($basedir . '/composer.json') && file_exists($basedir . '/vendor/autoload.php')){
+        require_once($basedir . '/vendor/autoload.php');
+        break;
+    }
+    $basedir = dirname($basedir);
+    if($basedir === '/'){
+        die('You need to set up the project dependencies using the following commands:' . PHP_EOL .
+            'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
+            'php composer.phar install' . PHP_EOL);
+    }
+} while(true);
+
+chdir($basedir);
+
+$options = Map::fromArray(getopt('h', ['install-path:', 'help']));
+if($options->containsKey('h') || $options->containsKey('help')) {
+    die('scanroutes <path/to/files> ... [--excludes=<space delimited list of exclude paths>] [--install-path=<path to install router>]');
+}
+
+$installPath = array_key_exists('install-path', $options) ? realpath($options['install-path']) : $basedir;
+
+if(
+    !is_dir($installPath) &&
+    !mkdir($installPath, true)
+) {
+    die('Unable to create the install path ' . $installPath);
+}
+
+$autoFileName = $installPath . '/AutoRoutes.php';
+$customFileName = $installPath . '/Routes.php';
+
+if(!is_file($customFileName)) {
+    echo 'Creating ' . $customFileName . PHP_EOL;
+    $skeletonAsProject = $basedir . '/src/Routes.skeleton';
+    $skeletonAsLib = $basedir . '/vendor/kilahm/attribute-router/src/Routes.skeleton';
+    if(is_file($skeletonAsLib)) {
+        copy($skeletonAsLib, $customFileName);
+    } else {
+        copy($skeletonAsProject, $customFileName);
+    }
+}
+
+use kilahm\AttributeRouter\RouteCompiler;
+
+echo 'Compiling routes to ' . $autoFileName . PHP_EOL;
+RouteCompiler::fromCli(Vector::fromItems($argv))->compile($autoFileName);

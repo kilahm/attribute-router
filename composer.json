@@ -1,5 +1,6 @@
 {
     "name": "kilahm/attribute-router",
+    "keywords": ["hhvm", "hack", "hacklang", "route", "routing"],
     "description": "A router for Hacklang that uses user defined attributes to define routing for single page applications.",
     "license": "MIT",
     "authors": [
@@ -12,7 +13,13 @@
         "hackpack/hackunit": "dev-master"
     },
     "require": {
-        "kilahm\hack-class-scanner": "dev-master",
-        "kilahm\ioc-factory-container": "dev-master"
+        "hhvm": "~3.4",
+        "kilahm/hack-class-scanner": "~1.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "kilahm\\AttributeRouter\\": "src/",
+            "kilahm\\AttributeRouter\\Test\\": "Test/"
+        }
     }
 }
