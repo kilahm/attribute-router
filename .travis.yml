@@ -8,4 +8,5 @@ before_script:
     - composer install --prefer-source
 
 script:
-    - bin/hackunit Test
+    - bin/scanroutes Test/
+    - vendor/bin/hackunit Test/
