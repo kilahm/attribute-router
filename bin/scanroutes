@@ -38,21 +38,7 @@ if(
     die('Unable to create the install path ' . $installPath);
 }
 
-$autoFileName = $installPath . '/AutoRoutes.php';
-$customFileName = $installPath . '/Routes.php';
-
-if(!is_file($customFileName)) {
-    echo 'Creating ' . $customFileName . PHP_EOL;
-    $skeletonAsProject = $basedir . '/src/Routes.skeleton';
-    $skeletonAsLib = $basedir . '/vendor/kilahm/attribute-router/src/Routes.skeleton';
-    if(is_file($skeletonAsLib)) {
-        copy($skeletonAsLib, $customFileName);
-    } else {
-        copy($skeletonAsProject, $customFileName);
-    }
-}
-
 use kilahm\AttributeRouter\RouteCompiler;
 
-echo 'Compiling routes to ' . $autoFileName . PHP_EOL;
-RouteCompiler::fromCli(Vector::fromItems($argv))->compile($autoFileName);
+echo 'Compiling routes to ' . $installPath . PHP_EOL;
+RouteCompiler::fromCli(Vector::fromItems($argv))->compile($installPath);

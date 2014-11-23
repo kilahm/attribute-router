@@ -3,20 +3,34 @@
 use kilahm\AttributeRouter\Route;
 
 /**
- * If you would like routes without using attributes, put them in this file.
+ * If you would like to define some routes without using attributes, put them in this file.
  */
 
-class Routes<Tcontainer>
+final class Routes
 {
-    public static function get() : Vector<Route<Tcontainer>>
+    <<provides('\Routes', 'routes')>>
+    public static function factory(@@@tcontainer@@@ $container) : Routes
     {
-        return AutoRoutes::get()->addAll(Vector
+        return new static($container, $container->getAutoRoutes());
+    }
+
+    public function __construct(private @@@tcontainer@@@ $container, private AutoRoutes $auto)
+    {
+    }
+
+    public function getContainer() : @@@tcontainer@@@
+    {
+        return $this->container;
+    }
+
+    public function get() : Vector<Route>
+    {
+        return $this->auto->get()->addAll(Vector
         {
         /*
         shape(
             'pattern' => '/some regex here/',
-            'factory' => class_meth('\full\path\to\class', 'factoryMethod'),
-            'method' => meth_caller('\full\path\to\class', 'someInstanceMethod'),
+            'method' => class_meth('\full\path\to\class', 'methodName'),
         ),
         shape(
             ...
@@ -26,30 +40,30 @@ class Routes<Tcontainer>
         });
     }
 
-    public static function put() : Vector<Route<Tcontainer>>
+    public function put() : Vector<Route>
     {
-        return AutoRoutes::put()->addAll(Vector
+        return $this->auto->put()->addAll(Vector
         {
         });
     }
 
-    public static function delete() : Vector<Route<Tcontainer>>
+    public function delete() : Vector<Route>
     {
-        return AutoRoutes::delete()->addAll(Vector
+        return $this->auto->delete()->addAll(Vector
         {
         });
     }
 
-    public static function post() : Vector<Route<Tcontainer>>
+    public function post() : Vector<Route>
     {
-        return AutoRoutes::post()->addAll(Vector
+        return $this->auto->post()->addAll(Vector
         {
         });
     }
 
-    public static function any() : Vector<Route<Tcontainer>>
+    public function any() : Vector<Route>
     {
-        return AutoRoutes::any()->addAll(Vector
+        return $this->auto->any()->addAll(Vector
         {
         });
     }

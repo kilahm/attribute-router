@@ -19,6 +19,7 @@ final class RouteCompiler
     private Map<string, RouteParts> $putList = Map{};
     private Map<string, RouteParts> $deleteList = Map{};
     private Map<string, RouteParts> $anyList = Map{};
+    private string $containerType = '';
 
     public static function fromCli(Vector<string> $argv) : this
     {
@@ -29,7 +30,7 @@ final class RouteCompiler
     {
     }
 
-    public function compile(string $outFileName) : void
+    public function compile(string $outPath) : void
     {
         // Require the files given
         $this->includeFiles($this->classMap->toVector());
@@ -39,7 +40,11 @@ final class RouteCompiler
             $this->findRoutes(new ReflectionClass($className));
         });
 
-        file_put_contents($outFileName, $this->makeRouterContent());
+        file_put_contents($outPath . '/AutoRoutes.php', $this->makeRouterContent());
+        file_put_contents(
+            $outPath . '/Routes.php',
+            str_replace('@@@tcontainer@@@', $this->containerType, file_get_contents(__DIR__ . '/Routes.skeleton'))
+        );
     }
 
     private function includeFiles(Vector<string> $fileNames) : void
@@ -50,13 +55,14 @@ final class RouteCompiler
         }
     }
 
-    private function findRoutes(ReflectionClass $reflector) : void
+    private function findRoutes(ReflectionClass $class) : void
     {
-        if(! $reflector->isInstantiable() || ! $reflector->isSubclassOf(Handler::class)) {
+        if( ! $class->isInstantiable()) {
             return;
         }
-        foreach($reflector->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
-            if($method->isStatic()) {
+
+        foreach($class->getMethods(ReflectionMethod::IS_PUBLIC) as $method) {
+            if(! $method->isStatic() || ! $this->requiresCorrectParameters($method)) {
                 continue;
             }
             $routeArgs = Vector::fromItems($method->getAttribute('route'));
@@ -72,32 +78,53 @@ final class RouteCompiler
 
             $route = shape(
                 'pattern' => $pattern,
-                'class' => $reflector->getName(),
+                'class' => $class->getName(),
                 'method' => $method->getName(),
             );
 
             switch($verb) {
             case 'get' :
-                $list = $this->getList;
+                $this->addToList($pattern, $route, $this->getList);
                 break;
             case 'post' :
-                $list = $this->postList;
+                $this->addToList($pattern, $route, $this->postList);
                 break;
             case 'put' :
-                $list = $this->putList;
+                $this->addToList($pattern, $route, $this->putList);
                 break;
             case 'delete' :
-                $list = $this->deleteList;
+                $this->addToList($pattern, $route, $this->deleteList);
                 break;
             default :
-                $list = $this->anyList;
+                $this->addToList($pattern, $route, $this->anyList);
             }
 
-            if($list->containsKey($pattern)) {
-                throw new RouteCollisionException('Found multiple instances of pattern ' . $pattern);
-            }
-            $list[$pattern] = $route;
         }
+    }
+
+    private function addToList(string $pattern, RouteParts $route, Map<string, RouteParts> $list) : void
+    {
+        if($list->containsKey($pattern)) {
+            throw new RouteCollisionException('Found multiple instances of pattern ' . $pattern);
+        }
+        $list->add(Pair{$pattern, $route});
+    }
+
+    private function requiresCorrectParameters(ReflectionMethod $method) : bool
+    {
+        if($method->getNumberOfParameters() !== 2) {
+            return false;
+        }
+
+        list($factory, $matches)= $method->getParameters();
+
+        if($this->containerType === '') {
+            // First time we found a factory
+            $this->containerType = $factory->info['type_hint'];
+        }
+        return
+            $this->containerType === $factory->info['type_hint'] &&
+            $matches->info['type_hint'] === 'HH\Vector<HH\string>';
     }
 
     private function makeRouterContent() : string
@@ -108,7 +135,7 @@ final class RouteCompiler
             $this->makeSection('post', $this->postList) .
             $this->makeSection('put', $this->putList) .
             $this->makeSection('delete', $this->deleteList) .
-            $this->makeSection('any', $this->getList) .
+            $this->makeSection('any', $this->anyList) .
             $this->makeRouterFoot();
     }
 
@@ -116,7 +143,7 @@ final class RouteCompiler
     {
 
         return
-<<<'PHP'
+<<<PHP
 <?hh // strict
 
 use kilahm\AttributeRouter\Route;
@@ -129,8 +156,20 @@ use kilahm\AttributeRouter\Route;
  * Routes.php
  */
 
-class AutoRoutes<Tcontainer>
+
+type Route = shape(
+    'pattern' => string,
+    'method' => (function({$this->containerType}, Vector<string>) : void),
+);
+
+final class AutoRoutes
 {
+    <<provides('\AutoRoutes', 'autoRoutes')>>
+    public static function factory({$this->containerType} \$container) : this
+    {
+        return new static();
+    }
+
 PHP;
 
     }
@@ -141,7 +180,7 @@ PHP;
         $out =
 <<<PHP
 
-    public static function $methName() : Vector<Route<Tcontainer>>
+    public function $methName() : Vector<Route>
     {
         return Vector
         {
@@ -153,8 +192,7 @@ PHP;
 <<<PHP
             shape(
                 'pattern' => '{$route['pattern']}',
-                'factory' => class_meth(\\{$route['class']}, 'factory'),
-                'method' => meth_classer({$route['class']}, {$route['method']}),
+                'method' => class_meth(\\{$route['class']}::class, '{$route['method']}'),
             ),
 PHP;
         }
@@ -162,6 +200,7 @@ PHP;
         // Close the section
         $out .=
 <<<PHP
+
         };
     }
 

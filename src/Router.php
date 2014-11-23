@@ -4,15 +4,9 @@ namespace kilahm\AttributeRouter;
 
 use Routes;
 
-type Route<Tcontainer> = shape(
-    'pattern' => string,
-    'factory' => (function(Tcontainer) : Handler<Tcontainer>),
-    'method' => (function(Handler<Tcontainer>) : void),
-);
-
-final class Router<Tcontainer>
+final class Router
 {
-    public function __construct(private Tcontainer $container)
+    public function __construct(private Routes $routes)
     {
     }
 
@@ -22,27 +16,27 @@ final class Router<Tcontainer>
         switch($verb)
         {
         case HttpVerb::Get :
-            $success = $this->attempt($path, Routes::get());
+            $success = $this->attempt($path, $this->routes->get());
             break;
         case HttpVerb::Put :
-            $success = $this->attempt($path, Routes::put());
+            $success = $this->attempt($path, $this->routes->put());
             break;
         case HttpVerb::Post :
-            $success = $this->attempt($path, Routes::post());
+            $success = $this->attempt($path, $this->routes->post());
             break;
         case HttpVerb::Delete :
-            $success = $this->attempt($path, Routes::delete());
+            $success = $this->attempt($path, $this->routes->delete());
             break;
         }
-        return $success ? true : $this->attempt($path, Routes::any());
+        return $success ? true : $this->attempt($path, $this->routes->any());
     }
 
-    private function attempt(string $path, Vector<Route<Tcontainer>> $routes) : bool
+    private function attempt(string $path, Vector<Route> $routes) : bool
     {
         $matches = [];
         foreach($routes as $route) {
             if(preg_match($route['pattern'], $path, $matches)) {
-                $route['method']($route['factory']($this->container)->setMatches(Vector::fromItems($matches)));
+                $route['method']($this->routes->getContainer(), Vector::fromItems($matches));
                 return true;
             }
         }

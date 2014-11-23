@@ -4,41 +4,41 @@ namespace kilahm\AttributeRouter\Test\Fixtures;
 
 use kilahm\AttributeRouter\Handler;
 
-final class HandlerA extends Handler<MockContainer>
+class HandlerA
 {
-    public static function factory(MockContainer $c) : this
+    <<route('get', '/a')>>
+    public static function getA(MockContainer $c, Vector<string> $matches) : void
     {
-        return new static();
+        throw new \Exception('get a');
     }
 
-    <<route('get', '/get/a')>>
-    public function getA() : void
+    <<route('post', '/a')>>
+    public static function postA(MockContainer $c, Vector<string> $matches) : void
     {
+        throw new \Exception('post a');
     }
 
-    <<route('post', '/post/a')>>
-    public function postA() : void
+    <<route('put', '/a')>>
+    public static function putA(MockContainer $c, Vector<string> $matches) : void
     {
+        throw new \Exception('put a');
     }
 
-    <<route('put', '/put/a')>>
-    public function putA() : void
+    <<route('delete', '/a')>>
+    public static function deleteA(MockContainer $c, Vector<string> $matches) : void
     {
+        throw new \Exception('delete a');
     }
 
-    <<route('delete', '/delete/a')>>
-    public function deleteA() : void
+    <<route('/a/any')>>
+    public static function anyA(MockContainer $c, Vector<string> $matches) : void
     {
-    }
-
-    <<route('/any/a')>>
-    public function anyA() : void
-    {
+        throw new \Exception('any a');
     }
 
     <<route('/pattern/(.*)/(.*)')>>
-    public function patternA() : void
+    public static function patternA(MockContainer $c, Vector<string> $matches) : void
     {
-        throw new \Exception(implode(' -- ', $this->getMatches()));
+        throw new \Exception(implode(' -- ', $matches));
     }
 }
