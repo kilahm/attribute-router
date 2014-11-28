@@ -90,4 +90,29 @@ class RouterTest extends TestCase
             })->toThrow(Exception::class, '/pattern/first/second -- first -- second');
         }
     }
+
+    public function testIgnoredRoutesAreNotRun() : void
+    {
+        $router = new Router(self::getRoutes());
+
+        foreach(HttpVerb::getValues() as $verb) {
+            $this->expectCallable(() ==> {
+                $router->match('/get/b', $verb);
+            })->toNotThrow();
+        }
+    }
+
+    public function testUnregisteredPathsReturnFalse() : void
+    {
+        $router = new Router(self::getRoutes());
+
+        $this->expect($router->match('/no/matches', HttpVerb::Get))->toEqual(false);
+    }
+
+    public function testRegisteredPathReturnTrue() : void
+    {
+        $router = new Router(self::getRoutes());
+
+        $this->expect($router->match('/noexception', HttpVerb::Get))->toEqual('string');
+    }
 }

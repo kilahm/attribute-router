@@ -41,4 +41,9 @@ class HandlerA
     {
         throw new \Exception(implode(' -- ', $matches));
     }
+
+    <<route('/noexception')>>
+    public static function noException(MockContainer $c, Vector<string> $matches) : void
+    {
+    }
 }

@@ -21,9 +21,10 @@ final class RouteCompiler
     private Map<string, RouteParts> $anyList = Map{};
     private string $containerType = '';
 
-    public static function fromCli(Vector<string> $argv) : this
+    public static function factory(Set<string> $includes, Set<string> $excludes) : this
     {
-        return new static(ClassScanner::fromCli($argv)->mapClassToFile());
+        $scanner = new ClassScanner($includes, $excludes);
+        return new static($scanner->mapClassToFile());
     }
 
     public function __construct(private Map<string,string> $classMap)

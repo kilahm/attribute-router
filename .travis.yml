@@ -6,7 +6,7 @@ php:
 
 before_script:
     - composer install --prefer-source
+    - bin/scanroutes Test/Fixtures/ exclude Test/Fixtures/Ignore/
 
 script:
-    - bin/scanroutes Test/
     - vendor/bin/hackunit Test/

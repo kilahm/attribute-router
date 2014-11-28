@@ -38,7 +38,33 @@ if(
     die('Unable to create the install path ' . $installPath);
 }
 
-use kilahm\AttributeRouter\RouteCompiler;
+$cliargs = Vector::fromItems($argv);
+$cliargs->removeKey(0);
+if($cliargs->isEmpty()) {
+    $cliargs[] = './';
+}
 
+$include = Set{};
+$exclude = Set{};
+$exFlag = false;
+foreach($cliargs as $arg) {
+    if($arg === 'exclude') {
+        $exFlag = true;
+        continue;
+    }
+
+    $rp = realpath($arg);
+    if($rp === false) {
+        continue;
+    }
+
+    if($exFlag) {
+        $exclude[] = $arg;
+    } else {
+        $include[] = $arg;
+    }
+}
+
+use kilahm\AttributeRouter\RouteCompiler;
 echo 'Compiling routes to ' . $installPath . PHP_EOL;
-RouteCompiler::fromCli(Vector::fromItems($argv))->compile($installPath);
+RouteCompiler::factory($include, $exclude)->compile($installPath);
