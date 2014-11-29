@@ -3,7 +3,7 @@
 
 if(substr(php_sapi_name(), 0, 3) !== 'cli'){
     http_response_code(404);
-    die();
+    exit();
 }
 
 // Find the composer autoloader
@@ -16,7 +16,7 @@ do {
     }
     $basedir = dirname($basedir);
     if($basedir === '/'){
-        die('You need to set up the project dependencies using the following commands:' . PHP_EOL .
+        exit('You need to set up the project dependencies using the following commands:' . PHP_EOL .
             'curl -s http://getcomposer.org/installer | php' . PHP_EOL .
             'php composer.phar install' . PHP_EOL);
     }
@@ -24,47 +24,25 @@ do {
 
 chdir($basedir);
 
-$options = Map::fromArray(getopt('h', ['install-path:', 'help']));
-if($options->containsKey('h') || $options->containsKey('help')) {
-    die('scanroutes <path/to/files> ... [--excludes=<space delimited list of exclude paths>] [--install-path=<path to install router>]');
-}
-
-$installPath = array_key_exists('install-path', $options) ? realpath($options['install-path']) : $basedir;
-
-if(
-    !is_dir($installPath) &&
-    !mkdir($installPath, true)
-) {
-    die('Unable to create the install path ' . $installPath);
-}
-
-$cliargs = Vector::fromItems($argv);
-$cliargs->removeKey(0);
-if($cliargs->isEmpty()) {
-    $cliargs[] = './';
-}
-
-$include = Set{};
-$exclude = Set{};
-$exFlag = false;
-foreach($cliargs as $arg) {
-    if($arg === 'exclude') {
-        $exFlag = true;
-        continue;
-    }
-
-    $rp = realpath($arg);
-    if($rp === false) {
-        continue;
-    }
-
-    if($exFlag) {
-        $exclude[] = $arg;
-    } else {
-        $include[] = $arg;
-    }
-}
-
 use kilahm\AttributeRouter\RouteCompiler;
-echo 'Compiling routes to ' . $installPath . PHP_EOL;
-RouteCompiler::factory($include, $exclude)->compile($installPath);
+use kilahm\Clio\Clio;
+
+$clio = Clio::fromCli();
+
+$clio->arg('path')
+    ->describedAs('Base path to search for route attributes.  The directory will be searched recursively.');
+
+$installPathOpt = $clio->opt('install-to')->aka('i')
+    ->describedAs('Path to install Routes.php and AutoRoutes.php')
+    ->withDefault($basedir)
+    ->isPath();
+
+$excludeOpt = $clio->opt('exclude')->aka('e')->aka('without')
+    ->describedAs('Space delimited paths to ignore while compiling. You must quote the entire list if you include a space.');
+
+$include = $clio->getArgVals()->toSet();
+
+$exclude = Set::fromItems(explode(' ', $excludeOpt->getVal()));
+
+echo 'Compiling routes to ' . $installPathOpt->getVal() . PHP_EOL;
+RouteCompiler::factory($include, $exclude)->compile($installPathOpt->getVal());
