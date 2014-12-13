@@ -9,6 +9,6 @@ if( ! (is_file($routesFile) && is_file($autoRoutesFile))) {
 }
 
 spl_autoload_register((string $class) ==> {
-    require_once dirname(__DIR__) . '/AutoRoutes.php';
-    require_once dirname(__DIR__) . '/Routes.php';
+    require_once $routesFile;
+    require_once $autoRoutesFile;
 });

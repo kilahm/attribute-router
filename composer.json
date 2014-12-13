@@ -15,8 +15,8 @@
     },
     "require": {
         "hhvm": "~3.3",
-        "kilahm/hack-class-scanner": "~1.2",
-        "kilahm/hack-clio": "~0.1"
+        "kilahm/hack-class-scanner": "1.3.0",
+        "kilahm/hack-clio": "1.1.0"
     },
     "autoload": {
         "psr-4": {

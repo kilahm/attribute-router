@@ -2,6 +2,7 @@
 
 namespace kilahm\AttributeRouter\Test;
 
+use AutoRoutes;
 use Exception;
 use HackPack\HackUnit\Core\TestCase;
 use kilahm\AttributeRouter\HttpVerb;
@@ -11,31 +12,22 @@ use Routes;
 
 class RouterTest extends TestCase
 {
-    private static bool $loaded = false;
+    private MockContainer $container;
 
-    <<__Memoize>>
-    public static function getRoutes() : Routes
+    public function __construct(string $name)
     {
-        $c = new MockContainer();
-        return $c->getRoutes();
+        parent::__construct($name);
+        $this->container = new MockContainer();
     }
 
-    public function setUp() : void
+    private function makeRouter() : Router
     {
-        if(! self::$loaded) {
-            spl_autoload_register((string $class) ==> {
-                /* HH_FIXME[1002] */
-                require_once dirname(__DIR__) . '/AutoRoutes.php';
-                /* HH_FIXME[1002] */
-                require_once dirname(__DIR__) . '/Routes.php';
-            });
-            self::$loaded = true;
-        }
+        return new Router($this->container->getRoutes());
     }
 
     public function testRouterMatchesGetA() : void
     {
-        $router = new Router(self::getRoutes());
+        $router = $this->makeRouter();
 
         $this->expectCallable(() ==> {
             $router->match('/a', HttpVerb::Get);
@@ -44,7 +36,7 @@ class RouterTest extends TestCase
 
     public function testRouterMatchesPostA() : void
     {
-        $router = new Router(self::getRoutes());
+        $router = $this->makeRouter();
 
         $this->expectCallable(() ==> {
             $router->match('/a', HttpVerb::Post);
@@ -53,7 +45,7 @@ class RouterTest extends TestCase
 
     public function testRouterMatchesPutA() : void
     {
-        $router = new Router(self::getRoutes());
+        $router = $this->makeRouter();
 
         $this->expectCallable(() ==> {
             $router->match('/a', HttpVerb::Put);
@@ -62,7 +54,7 @@ class RouterTest extends TestCase
 
     public function testRouterMatchesDeleteA() : void
     {
-        $router = new Router(self::getRoutes());
+        $router = $this->makeRouter();
 
         $this->expectCallable(() ==> {
             $router->match('/a', HttpVerb::Delete);
@@ -71,7 +63,7 @@ class RouterTest extends TestCase
 
     public function testRouterMatchesAnyA() : void
     {
-        $router = new Router(self::getRoutes());
+        $router = $this->makeRouter();
 
         foreach(HttpVerb::getValues() as $verb){
             $this->expectCallable(() ==> {
@@ -82,7 +74,7 @@ class RouterTest extends TestCase
 
     public function testRouterPassesPatterns() : void
     {
-        $router = new Router(self::getRoutes());
+        $router = $this->makeRouter();
 
         foreach(HttpVerb::getValues() as $verb){
             $this->expectCallable(() ==> {
@@ -93,7 +85,7 @@ class RouterTest extends TestCase
 
     public function testIgnoredRoutesAreNotRun() : void
     {
-        $router = new Router(self::getRoutes());
+        $router = $this->makeRouter();
 
         foreach(HttpVerb::getValues() as $verb) {
             $this->expectCallable(() ==> {
@@ -104,14 +96,14 @@ class RouterTest extends TestCase
 
     public function testUnregisteredPathsReturnFalse() : void
     {
-        $router = new Router(self::getRoutes());
+        $router = $this->makeRouter();
 
         $this->expect($router->match('/no/matches', HttpVerb::Get))->toEqual(false);
     }
 
     public function testRegisteredPathReturnTrue() : void
     {
-        $router = new Router(self::getRoutes());
+        $router = $this->makeRouter();
 
         $this->expect($router->match('/noexception', HttpVerb::Get))->toEqual('string');
     }

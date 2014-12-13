@@ -46,11 +46,23 @@ is expected to be some sort of IOC container to allow the method to begin instan
 
 After defining all of the routes you like through attributes, you must run the compile script
 
-```
-vendor/bin/scanroutes path/to/search other/path [exclude other/path/to/ignore path/to/search/and/ignore]
+```bash
+vendor/bin/scanroutes path/to/search other/path/to/search [--exclude /path/to/exclude [--exclude /other/path/to/exclude ...]]
 ```
 
 You may specify multiple base paths to search and multiple paths to ignore.  All searched paths will be searched recursively.
+
+Call `vendor/bin/scanroutes --help` for a list of all options.
+
+### Routes.php
+
+After the route compile script is run, two files should be in your project directory (or install target directory if you used `--install-to`).
+The `AutoRoutes.php` file is a collection of proxy methods for your route handlers.
+
+The `Routes.php` file exists so you may add routes without annotating them with attributes.  Follow the pattern given in the file to add routes by hand.
+
+If `scanroutes` is run again, it will not overwrite the `Routes.php` file.  This means that if you already created such a file before running the compiler, the
+router class will likely not work.
 
 ## Examples
 
@@ -66,3 +78,11 @@ You may specify multiple base paths to search and multiple paths to ignore.  All
 ```
 
 The above route will be called for any http verb and the `$matches` vector will be populated with the results from `preg_match` on the pattern.
+
+```php
+    <<route(‘delete’, ‘/user’)>>
+    public static function deleteUser(Container $c, Vector<string> $matches) : void
+    {
+        // $matches == Vector{‘/user’}
+    }
+```

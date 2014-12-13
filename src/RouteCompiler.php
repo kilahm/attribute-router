@@ -41,11 +41,16 @@ final class RouteCompiler
             $this->findRoutes(new ReflectionClass($className));
         });
 
+        // Construct the routes found
         file_put_contents($outPath . '/AutoRoutes.php', $this->makeRouterContent());
-        file_put_contents(
-            $outPath . '/Routes.php',
-            str_replace('@@@tcontainer@@@', $this->containerType, file_get_contents(__DIR__ . '/Routes.skeleton'))
-        );
+
+        // Construct a skeleton hand router if it doesn't exist
+        if( ! is_file($outPath . '/Routes.php')) {
+            file_put_contents(
+                $outPath . '/Routes.php',
+                str_replace('@@@tcontainer@@@', $this->containerType, file_get_contents(__DIR__ . '/Routes.skeleton'))
+            );
+        }
     }
 
     private function includeFiles(Vector<string> $fileNames) : void
@@ -163,13 +168,8 @@ type Route = shape(
     'method' => (function({$this->containerType}, Vector<string>) : void),
 );
 
-final class AutoRoutes
+class AutoRoutes extends Routes
 {
-    <<provides('\AutoRoutes', 'autoRoutes')>>
-    public static function factory({$this->containerType} \$container) : this
-    {
-        return new static();
-    }
 
 PHP;
 
@@ -183,7 +183,7 @@ PHP;
 
     public function $methName() : Vector<Route>
     {
-        return Vector
+        return parent::$methName()->addAll(Vector
         {
 PHP;
 
@@ -202,7 +202,7 @@ PHP;
         $out .=
 <<<PHP
 
-        };
+        });
     }
 
 PHP;

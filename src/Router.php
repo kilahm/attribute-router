@@ -2,11 +2,11 @@
 
 namespace kilahm\AttributeRouter;
 
-use Routes;
+use AutoRoutes;
 
 final class Router
 {
-    public function __construct(private Routes $routes)
+    public function __construct(private AutoRoutes $routes)
     {
     }
 

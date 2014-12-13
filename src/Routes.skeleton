@@ -6,15 +6,10 @@ use kilahm\AttributeRouter\Route;
  * If you would like to define some routes without using attributes, put them in this file.
  */
 
-final class Routes
+<<__ConsistentConstructor>>
+class Routes
 {
-    <<provides('\Routes', 'routes')>>
-    public static function factory(@@@tcontainer@@@ $container) : Routes
-    {
-        return new static($container, $container->getAutoRoutes());
-    }
-
-    public function __construct(private @@@tcontainer@@@ $container, private AutoRoutes $auto)
+    public function __construct(private @@@tcontainer@@@ $container)
     {
     }
 
@@ -25,7 +20,7 @@ final class Routes
 
     public function get() : Vector<Route>
     {
-        return $this->auto->get()->addAll(Vector
+        return Vector
         {
         /*
         shape(
@@ -37,34 +32,34 @@ final class Routes
         ),
         ...
         */
-        });
+        };
     }
 
     public function put() : Vector<Route>
     {
-        return $this->auto->put()->addAll(Vector
+        return Vector
         {
-        });
+        };
     }
 
     public function delete() : Vector<Route>
     {
-        return $this->auto->delete()->addAll(Vector
+        return Vector
         {
-        });
+        };
     }
 
     public function post() : Vector<Route>
     {
-        return $this->auto->post()->addAll(Vector
+        return Vector
         {
-        });
+        };
     }
 
     public function any() : Vector<Route>
     {
-        return $this->auto->any()->addAll(Vector
+        return Vector
         {
-        });
+        };
     }
 }
