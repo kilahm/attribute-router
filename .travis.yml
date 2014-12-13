@@ -9,4 +9,5 @@ before_script:
     - bin/scanroutes Test/Fixtures/ -e Test/Fixtures/Ignore/
 
 script:
+    - hh_server --check .
     - vendor/bin/hackunit Test/
