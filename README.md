@@ -54,7 +54,7 @@ You may specify multiple base paths to search and multiple paths to ignore.  All
 
 Call `vendor/bin/scanroutes --help` for a list of all options.
 
-### Routes.php
+### Routes.php and AutoRoutes.php
 
 After the route compile script is run, two files should be in your project directory (or install target directory if you used `--install-to`).
 The `AutoRoutes.php` file is a collection of proxy methods for your route handlers.
@@ -64,7 +64,43 @@ The `Routes.php` file exists so you may add routes without annotating them with 
 If `scanroutes` is run again, it will not overwrite the `Routes.php` file.  This means that if you already created such a file before running the compiler, the
 router class will likely not work.
 
-## Examples
+## Instantiation
+
+Your application bootstrap file should instantiate your IOC/DI container, then pass it to an instance of `AutoRoutes`.  You must then pass the instance of `AutoRoutes` to `Router`.  This must be done because the Router class is unaware of the class of the container.  Only the generated `Routes` and `AutoRoutes` classes know what the class of the container is.
+
+```php
+// bootstrap
+$container = new Container();
+$router = new kilahm\AttributeRouter\Router(new AutoRoutes($container));
+$app = new App($container, $router); // Pass the router and container to your main application class
+$app->run(); // Or however your application class works...
+```
+
+Alternatively you could create a factory that does the instantiation and injection for you (which is the reason you have an IOC/DI container in the first place).
+
+```php
+class Container
+{
+    public function makeRouter() : \kilahm\AttributeRouter\Router
+    {
+        return new \kilahm\AttributeRouter\Router(new AutoRoutes($this));
+    }
+}
+```
+
+## Matching
+
+To actually have the routing magic happen, simply call the `match` method on your `Router` object.
+
+```php
+$path = $_SERVER['REQUEST_URI']; // Or any other way to get the path to match
+// Somehow determine which HTTP verb was used to access this resource
+$router->match($path, HttpVerb::Get); // Or the appropriate verb
+```
+
+To see the full list of supported HTTP verbs, see [HttpVerb.php](src/HttpVerb.php).  Also see the documentation on [enums](http://docs.hhvm.com/manual/en/hack.enums.php) to take full advantage of this feature.
+
+# Examples
 
 ```php
     <<route('/pattern/(.*)/(.*)')>>
@@ -86,3 +122,5 @@ The above route will be called for any http verb and the `$matches` vector will 
         // $matches == Vector{‘/user’}
     }
 ```
+
+The above route will be called only for HTTP DELETE calls.  Note that the `$matches` vector contains a single entry which is the fully matched route.
