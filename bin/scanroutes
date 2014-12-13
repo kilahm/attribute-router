@@ -30,19 +30,19 @@ use kilahm\Clio\Clio;
 $clio = Clio::fromCli();
 
 $clio->arg('path')
-    ->describedAs('Base path to search for route attributes.  The directory will be searched recursively.');
+    ->describedAs('Base path to search for route attributes.  The directory will be searched recursively. You may specify as many base paths as you like.');
 
 $installPathOpt = $clio->opt('install-to')->aka('i')
-    ->describedAs('Path to install Routes.php and AutoRoutes.php')
-    ->withDefault($basedir)
-    ->isPath();
+    ->describedAs('Path to install Routes.php and AutoRoutes.php.  Defaults to ' . $basedir)
+    ->isPath($basedir);
 
 $excludeOpt = $clio->opt('exclude')->aka('e')->aka('without')
+    ->withManyValues(Vector{})
     ->describedAs('Space delimited paths to ignore while compiling. You must quote the entire list if you include a space.');
 
 $include = $clio->getArgVals()->toSet();
 
-$exclude = Set::fromItems(explode(' ', $excludeOpt->getVal()));
+$exclude = $excludeOpt->getValueList()->toSet();
 
 echo 'Compiling routes to ' . $installPathOpt->getVal() . PHP_EOL;
 RouteCompiler::factory($include, $exclude)->compile($installPathOpt->getVal());
