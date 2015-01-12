@@ -23,7 +23,7 @@
             "kilahm\\AttributeRouter\\": "src/",
             "kilahm\\AttributeRouter\\Test\\": "Test/"
         }
-    }
+    },
     "bin": [
         "bin/scanroutes"
     ]
