@@ -24,4 +24,7 @@
             "kilahm\\AttributeRouter\\Test\\": "Test/"
         }
     }
+    "bin": [
+        "bin/scanroutes"
+    ]
 }
