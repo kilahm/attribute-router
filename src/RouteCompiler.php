@@ -126,11 +126,11 @@ final class RouteCompiler
 
         if($this->containerType === '') {
             // First time we found a factory
-            $this->containerType = $factory->info['type_hint'];
+            $this->containerType = $factory->getTypeText();
         }
         return
-            $this->containerType === $factory->info['type_hint'] &&
-            $matches->info['type_hint'] === 'HH\Vector<HH\string>';
+            $this->containerType === $factory->getTypeText() &&
+            $matches->getTypeText() === 'HH\Vector<HH\string>';
     }
 
     private function makeRouterContent() : string
