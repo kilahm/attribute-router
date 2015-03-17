@@ -6,7 +6,7 @@ use kilahm\AttributeRouter\Route;
  * If you would like to define some routes without using attributes, put them in this file.
  */
 
-<<__ConsistentConstructor>>
+<<__ConsistentConstruct>>
 class Routes
 {
     public function __construct(private @@@tcontainer@@@ $container)
