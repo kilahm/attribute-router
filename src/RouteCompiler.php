@@ -4,7 +4,7 @@ namespace kilahm\AttributeRouter;
 
 use ReflectionClass;
 use ReflectionMethod;
-use kilahm\Scanner\ClassScanner;
+use HackPack\Scanner\ClassScanner;
 
 type RouteParts = shape(
     'pattern' => string,
